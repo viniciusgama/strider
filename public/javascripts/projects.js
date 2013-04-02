@@ -112,11 +112,7 @@ $(function() {
       }, this));
       return this;
     }
-
-
   });
-
-
 
   // Represents the whole JS dashboard App
   window.DashboardAppView = Backbone.View.extend({
