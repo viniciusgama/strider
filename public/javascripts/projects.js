@@ -75,6 +75,18 @@ $(function() {
     }
   });
 
+  window.BitbucketRepo = Backbone.Model.extend({
+    short_url: function() {
+      return this.get('html_url').replace(/https:\/\/bitbucket.com/gi, '');
+    },
+
+    defaults: function() {
+      return {
+        enabled: false
+      };
+    }
+  });
+
   // All repositories from /api/github/metadata
   window.RepoListCollection = Backbone.Collection.extend({
     model: Repo,
@@ -116,7 +128,6 @@ $(function() {
 
   // Represents the whole JS dashboard App
   window.DashboardAppView = Backbone.View.extend({
-
     el: $("#dashboard"),
     events: {
       "click .refresh-button" : "refresh"
