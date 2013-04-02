@@ -1,7 +1,8 @@
 <script id="project-config-item" type="text/template" class="template">
   <div class="row-fluid">
     <div class="span8">
-    <p><% if (!configured) { %>
+    
+    <% if (!configured) { %>
     <% print(short_url); %>
     (<a href=<%= html_url %> >github</a>)
     <% } else { %>
