@@ -2,8 +2,8 @@
 
 {% block bodyContent %}
 {% if !currentUser %} 
-      {% include "partials/errors.html" %}
-      {% include "partials/signupform.html" %}
+  {% include "partials/errors.html" %}
+  {% include "partials/signupform.html" %}
 
   <script>
     $(document).ready(function() {
@@ -30,7 +30,7 @@
 </div>
 {% endif %}
 
-{% if !currentUser.bitbucket %}
+{% if !currentUser.bitbucket.username %}
 <div class="span7 well">
   <h3>Welcome to Strider, {{currentUser.email}}!</h3> 
   <p> It looks like you haven't yet linked your Bitbucket account. Press the button below to get started.
