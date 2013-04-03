@@ -132,9 +132,7 @@ $(function() {
     initialize: function() {
       RepoList.bind('all', this.render, this);
       RepoList.bind('reset', this.addData, this);
-
       status_msg("Fetching available repository information from Github...", "info", "#spinner");
-
       RepoList.fetch();
     },
     render: function() {
@@ -207,11 +205,9 @@ $(function() {
       }, this));
 
       RepoList.each($.proxy(function(repo) {
-
         var view = new RepoView({model: repo});
         var repoel = view.render().el;
         $("#bitbucket-repo-list").append(repoel);
-
       }, this));
       if ($("#spinner").hasClass('alert-info')) {
         $("#spinner").hide();

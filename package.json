@@ -37,7 +37,8 @@
     "swig": "git://github.com/peterbraden/swig",
     "cookie": "0.0.5",
     "socket.io": "~0.9.13",
-    "passport-bitbucket": "~0.1.2"
+    "passport-bitbucket": "~0.1.2",
+    "oauth": "~0.9.10"
   },
   "devDependencies": {
     "mocha": ">=0.11.0",
