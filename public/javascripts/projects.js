@@ -39,7 +39,6 @@ $(function() {
   window.startJob = function(url, job_type) {
     status_msg("Sending start message...", "info", "#spinner");
 
-
     // Default job type is TEST_AND_DEPLOY
     if (job_type === undefined) {
       job_type = "TEST_AND_DEPLOY";
@@ -75,18 +74,6 @@ $(function() {
     }
   });
 
-  window.BitbucketRepo = Backbone.Model.extend({
-    short_url: function() {
-      return this.get('html_url').replace(/https:\/\/bitbucket.com/gi, '');
-    },
-
-    defaults: function() {
-      return {
-        enabled: false
-      };
-    }
-  });
-
   // All repositories from /api/github/metadata
   window.RepoListCollection = Backbone.Collection.extend({
     model: Repo,
@@ -101,16 +88,13 @@ $(function() {
   // Represents an individual Repo in the list
   window.RepoView = Backbone.View.extend({
     template: _.template($("#project-config-item").html()),
-
     events: {
       // We will have some here eventually.
     },
-
     initialize: function() {
       this.model.bind("change", this.render, this);
       this.model.bind("destroy", this.remove, this);
     },
-
     render: function() {
 
       var data = this.model.toJSON();
@@ -135,18 +119,16 @@ $(function() {
     refresh: function ( event ){
       status_msg("Refreshing repository list...", "info", "#spinner");
       $.ajax("/api/github/metadata?refresh=1", {
-            success: function(data, ts, xhr) {
-                RepoList.fetch();
-                var repo_count = 0;
-                if (data.repos) {
-                  repo_count = data.repos.length;
-                }
+        success: function(data, ts, xhr) {
+            RepoList.fetch();
+            var repo_count = 0;
+            if (data.repos) {
+              repo_count = data.repos.length;
             }
-          });
+        }
+      });
     },
-
     template: _.template($("#project-config-app").html()),
-
     initialize: function() {
       RepoList.bind('all', this.render, this);
       RepoList.bind('reset', this.addData, this);
@@ -154,16 +136,65 @@ $(function() {
       status_msg("Fetching available repository information from Github...", "info", "#spinner");
 
       RepoList.fetch();
-
     },
-
     render: function() {
     },
-
     addData: function() {
       this.addRepos();
     },
+    addRepos: function() {
+      any_configured = RepoList.any(function(item) {
+        return item.attributes.configured;
+      });
+      $(this.el).html(this.template({any_configured:any_configured,
+        show_all:this.show_all}));
+      $(this.el).find('.btn').click($.proxy(function() {
+        this.show_all = true;
+        this.addRepos();
+      }, this));
 
+      RepoList.each($.proxy(function(repo) {
+        var view = new RepoView({model: repo});
+        var repoel = view.render().el;
+        $("#repo-list").append(repoel);
+      }, this));
+      if ($("#spinner").hasClass('alert-info')) {
+        $("#spinner").hide();
+      }
+    }
+  });
+
+  window.BitbucketDashboardAppView = Backbone.View.extend({
+    el: $("#bitbucket-dashboard"),
+    events: {
+      "click .refresh-button" : "refresh"
+    },
+    refresh: function ( event ){
+      status_msg("Refreshing repository list...", "info", "#spinner");
+      $.ajax("/api/github/metadata?refresh=1", {
+        success: function(data, ts, xhr) {
+            RepoList.fetch();
+            var repo_count = 0;
+            if (data.repos) {
+              repo_count = data.repos.length;
+            }
+        }
+      });
+    },
+    template: _.template($("#bitbucket-project-config-app").html()),
+    initialize: function() {
+      RepoList.bind('all', this.render, this);
+      RepoList.bind('reset', this.addData, this);
+
+      status_msg("Fetching available repository information from Bitbucket...", "info", "#spinner");
+
+      RepoList.fetch();
+    },
+    render: function() {
+    },
+    addData: function() {
+      this.addRepos();
+    },
     addRepos: function() {
       any_configured = RepoList.any(function(item) {
         return item.attributes.configured;
@@ -179,7 +210,7 @@ $(function() {
 
         var view = new RepoView({model: repo});
         var repoel = view.render().el;
-        $("#repo-list").append(repoel);
+        $("#bitbucket-repo-list").append(repoel);
 
       }, this));
       if ($("#spinner").hasClass('alert-info')) {
@@ -189,9 +220,9 @@ $(function() {
   });
 
   window.DashboardApp = new DashboardAppView();
+  window.BitbucketDashboardApp = new BitbucketDashboardAppView();
 
 });
-
 
 // == Dirty Filter Box
 $(function(){
@@ -218,8 +249,6 @@ $(function(){
           $(this).hide()
         }
       }
-    })
-
-  })
-
-})
+    });
+  });
+});
