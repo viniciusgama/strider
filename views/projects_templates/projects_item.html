@@ -4,12 +4,12 @@
     
     <% if (!configured) { %>
     <% print(short_url); %>
-    (<a href=<%= html_url %> >github</a>)
+    (<a href=<%= html_url %> ><%= from %></a>)
     <% } else { %>
     <a href=<%= short_url %> + "/config" %>>
     <% print(short_url); %>
     </a>
-    (<a href=<%= html_url %> >github</a>)
+    (<a href=<%= html_url %> ><%= from %></a>)
     <% } %></p><p><%= description %></p></div><div class="span4"><% if (!configured) { %>
     <a href="<% print('/kickoff/'+ id); %>" class="btn btn-primary repo-action">Add</a>
     <% } else { %>
