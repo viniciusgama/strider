@@ -137,7 +137,7 @@ $(function() {
   });
 
   window.BitbucketRepoView = Backbone.View.extend({
-    template: _.template($("#project-config-item").html()),
+    template: _.template($("#bitbucket-project-config-item").html()),
     events: {
       // We will have some here eventually.
     },
@@ -146,7 +146,6 @@ $(function() {
       this.model.bind("destroy", this.remove, this);
     },
     render: function() {
-
       var data = this.model.toJSON();
       data.short_url = this.model.short_url();
       data.from = this.model.from();
@@ -171,11 +170,11 @@ $(function() {
       status_msg("Refreshing repository list...", "info", "#spinner");
       $.ajax("/api/github/metadata?refresh=1", {
         success: function(data, ts, xhr) {
-            RepoList.fetch();
-            var repo_count = 0;
-            if (data.repos) {
-              repo_count = data.repos.length;
-            }
+          RepoList.fetch();
+          var repo_count = 0;
+          if (data.repos) {
+            repo_count = data.repos.length;
+          }
         }
       });
     },
@@ -268,7 +267,6 @@ $(function() {
 
   window.DashboardApp = new DashboardAppView();
   window.BitbucketDashboardApp = new BitbucketDashboardAppView();
-
 });
 
 // == Dirty Filter Box
