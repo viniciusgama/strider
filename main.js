@@ -4,8 +4,10 @@ var app = require('./lib/app'),
     config = require('./lib/config'),
     loader = require('strider-extension-loader'),
     middleware = require('./lib/middleware'),
+    auth = require('./lib/auth')
     models = require('./lib/models'),
-    websockets = require('./lib/websockets');
+    websockets = require('./lib/websockets')
+    , pluginTemplates = require('./lib/pluginTemplates')
 
 common.workerMessageHooks = [];
 common.workerMessagePostProcessors = [];
@@ -62,7 +64,13 @@ function registerWorkerMessageHook(f) {
 
 
 module.exports = function(extdir, c, callback) {
-  var appConfig = c || config;
+  var appConfig = config;
+  // override with c
+  for (var k in c){
+    appConfig[k] = c[k];
+  }
+
+
   // Initialize the (web) app
   var appInstance = app.init(appConfig);
   var cb = callback || function() {}
@@ -82,22 +90,28 @@ module.exports = function(extdir, c, callback) {
     loader: loader,
     models: models,
     middleware: middleware,
+    auth: auth, //TODO - may want to make this a subset of the auth module
     registerWorkerMessageHook: registerWorkerMessageHook,
     registerWorkerMessagePostProcessor: registerWorkerMessagePostProcessor,
     registerPanel: registerPanel,
+    registerBlock: pluginTemplates.registerBlock,
   };
   context.extdir = extdir;
 
   // Make extension context available throughout application.
   common.context = context;
   loader.initExtensions(extdir, "webapp", context, appInstance,
-    function(err, initialized) { 
+    function(err, initialized, templates) { 
       if (err) {
         return cb(err)
       }
-      
-      app.run(appInstance);
 
+      if (templates){
+        for (var k in templates){
+          pluginTemplates.registerTemplate(k, templates[k]);
+        }
+      }
+      app.run(appInstance);
       cb(err, initialized, appInstance) 
   });
 
