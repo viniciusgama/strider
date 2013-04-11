@@ -110,7 +110,7 @@ function init_kickoff() {
           var self = this;
           var repo_url = model.toJSON().url.toLowerCase();
           
-          socket.on('repodone', function(data) {
+          socket.on('bitrepodone', function(data) {
             socket.removeAllListeners('update');
             socket.removeAllListeners('repodone');
             status_msg("");

@@ -27,6 +27,7 @@ exports.get_repos = function(req, res){
         repo.id = repo.name;
         repo.configured = false;
         repo.html_url = "https://bitbucket.org/" + repo.owner + "/" + repo.name;
+        repo.ssh_url = "git@bitbucket.org:" + repo.owner + "/" + repo.name + ".git";
       });
       req.user.save(function(err, user){
         //return res.json(req.user);

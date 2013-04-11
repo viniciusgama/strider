@@ -39,8 +39,77 @@ var deploy_provider_property_map = {
  *  TEST_ONLY - start a TEST_ONLY job.
  *  TEST_AND_DEPLOY - start a TEST_AND_DEPLOY job.
  */
+function handleBitbucket(req, res){
+  var url;
+  res.statusCode = 200;
+
+  url = api.require_param("url", req, res);
+  if (url === undefined) {
+    return;
+  }
+
+  // Default job type is TEST_AND_DEPLOY but this can be overridden
+  // via the "type" query parameter.
+  var job_type = req.param("type");
+  var supported_types = [TEST_AND_DEPLOY, TEST_ONLY];
+  var found = _.find(supported_types, function(ttype) {
+    return ttype == job_type;
+  });
+
+  if (found === undefined) {
+    job_type = TEST_AND_DEPLOY;
+  } else {
+    job_type = found;
+  }
+
+  req.user.get_bitbucket_repo_config(url, function(err, repo_config, access_level, origin_user_obj) {
+    if (err || !repo_config) {
+      res.statusCode = 400;
+      return res.end("you must configure " + url + " before you can start a job for it");
+    }
+    var repo_metadata = null;
+    // We don't have github metadata unless we have a linked github account.
+    if (origin_user_obj.bitbucket.username) {
+        repo_metadata = _.find(origin_user_obj.bitbucket_metadata[origin_user_obj.bitbucket.username], function(item) {
+            return repo_config.url == item.html_url.toLowerCase();
+        });
+    }
+
+    var repo_ssh_url;
+    // If we have Github metadata, use that. It is loosely coupled and can self-heal things like
+    // a configured Github Repo being renamed in Github (such as happened with Klingsbo)
+    // We do not have metadata in the manual setup case
+    if (repo_metadata) {
+      console.log("metadata - " + repo_metadata.ssh_url);
+      repo_ssh_url = repo_metadata.ssh_url;
+    } else {
+      // Manual setup case - try to synthesize a Github SSH url from the display URL.
+      // This is brittle because display urls can change, and the user (currently) has
+      // no way to change them (other than deleting and re-adding project).
+      var p = gh.parse_github_url(repo_config.display_url);
+      repo_ssh_url = gh.make_ssh_url(p.org, p.repo);
+    }
+    if (job_type === TEST_AND_DEPLOY && repo_config.has_prod_deploy_target) {
+      var deploy_config_key = deploy_provider_property_map[repo_config.prod_deploy_target.provider];
+      var deploy_config = _.find(req.user[deploy_config_key], function(item) {
+        return item.account_id === repo_config.prod_deploy_target.account_id;
+      });
+      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type);
+    } else if (job_type === TEST_AND_DEPLOY && !repo_config.has_prod_deploy_target) {
+      res.statusCode = 400;
+      res.end("TEST_AND_DEPLOY requested but deploy target not configued ");
+      return;
+    } else if (job_type === TEST_ONLY) {
+      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type);
+    }
+    res.end("OK");
+  });
+}
 
 exports.jobs_start = function(req, res) {
+  if(req.param("bitbucket"))
+    handleBitbucket(req, res);
+
   var url;
   res.statusCode = 200;
 
