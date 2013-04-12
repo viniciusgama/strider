@@ -112,7 +112,7 @@ function init_kickoff() {
           
           socket.on('bitrepodone', function(data) {
             socket.removeAllListeners('update');
-            socket.removeAllListeners('repodone');
+            socket.removeAllListeners('bitrepodone');
             status_msg("");
             spinner.html(_.template($("#spinner-msg").html(),
               {message:"Bitbucket respository setup complete."}))

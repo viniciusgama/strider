@@ -63,7 +63,9 @@ function handleBitbucket(req, res){
   }
 
   req.user.get_bitbucket_repo_config(url, function(err, repo_config, access_level, origin_user_obj) {
+
     if (err || !repo_config) {
+      console.log(repo_config);
       res.statusCode = 400;
       return res.end("you must configure " + url + " before you can start a job for it");
     }
@@ -107,8 +109,10 @@ function handleBitbucket(req, res){
 }
 
 exports.jobs_start = function(req, res) {
-  if(req.param("bitbucket"))
+  if(req.param("bitbucket")){
     handleBitbucket(req, res);
+    return
+  }
 
   var url;
   res.statusCode = 200;
@@ -189,7 +193,7 @@ exports.jobs = function(req, res) {
     var jobsStatus = [];
     Step(
       function() {
-        req.user.get_repo_config_list(this);
+        req.user.get_bitbucket_repo_config_list(this);
       },
       // Find all repos the user has at least read-level of access to
       function buildQueries(err, repo_list) {

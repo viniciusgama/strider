@@ -161,16 +161,13 @@ $(function() {
   // Represents an individual Job in the list
   window.JobView = Backbone.View.extend({
     template: _.template($("#dashboard-job-item").html()),
-
     events: {
       // We will have some here eventually.
     },
-
     initialize: function() {
       this.model.bind("change", this.render, this);
       this.model.bind("destroy", this.remove, this);
     },
-
     render: function() {
       if (!this.model.get('duration_text')) {
         this.model.set('duration_text', this.model.get('duration'));
@@ -189,49 +186,30 @@ $(function() {
 
       return this;
     }
-
-
   });
-
 
   // Represents the whole JS dashboard App
   window.DashboardAppView = Backbone.View.extend({
-
     el: $("#dashboard"),
-
     template: _.template($("#dashboard-app").html()),
-
     initialize: function() {
-      //RepoList.bind('all', this.render, this);
-      //RepoList.bind('reset', this.addData, this);
-
-      //status_msg("Fetching available repository information from Github...", "info", "#spinner-msg");
-
-      //RepoList.fetch();
-
       JobList.bind('all', this.render, this);
       JobList.bind('reset', this.addData, this);
 
       JobList.fetch();
       console.log("job list fetched");
-
-
     },
     render: function() {
       //$(this.el).html(this.template());
       //return this;
     },
-
-
     addData: function() {
       this.renderHTML();
       this.addJobs();
     },
-
     renderHTML: function() {
       $(this.el).html(this.template());      
     },
-
     addJobs: function() {
       $("#job-list .empty").remove();
       if (JobList.length > 0){
@@ -249,5 +227,4 @@ $(function() {
   });
 
   window.DashboardApp = new DashboardAppView();
-
 });

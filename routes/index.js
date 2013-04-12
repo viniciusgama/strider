@@ -36,7 +36,7 @@ exports.index = function(req, res){
           res.render('register.html', {invite_code:code});
     } else {
       if (req.user != undefined) {
-        req.user.get_repo_config_list(function(err, repo_list) {
+        req.user.get_bitbucket_repo_config_list(function(err, repo_list) {
           if (err) throw err;
           res.render('index.html',{total_configured_projects:repo_list.length});
         });
