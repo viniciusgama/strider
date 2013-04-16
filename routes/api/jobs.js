@@ -95,13 +95,13 @@ function handleBitbucket(req, res){
       var deploy_config = _.find(req.user[deploy_config_key], function(item) {
         return item.account_id === repo_config.prod_deploy_target.account_id;
       });
-      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type);
+      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type, "bitbucket");
     } else if (job_type === TEST_AND_DEPLOY && !repo_config.has_prod_deploy_target) {
       res.statusCode = 400;
       res.end("TEST_AND_DEPLOY requested but deploy target not configued ");
       return;
     } else if (job_type === TEST_ONLY) {
-      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type);
+      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type, "bitbucket");
     }
     res.end("OK");
   });
@@ -165,13 +165,13 @@ exports.jobs_start = function(req, res) {
       var deploy_config = _.find(req.user[deploy_config_key], function(item) {
         return item.account_id === repo_config.prod_deploy_target.account_id;
       });
-      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type);
+      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type, "github");
     } else if (job_type === TEST_AND_DEPLOY && !repo_config.has_prod_deploy_target) {
       res.statusCode = 400;
       res.end("TEST_AND_DEPLOY requested but deploy target not configued ");
       return;
     } else if (job_type === TEST_ONLY) {
-      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type);
+      jobs.startJob(req.user, repo_config, deploy_config, undefined, repo_ssh_url, job_type, "github");
     }
     res.end("OK");
   });
