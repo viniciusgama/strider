@@ -29,7 +29,6 @@ var deploy_provider_property_map = {
   'dotcloud':'dotcloud_config',
 };
 
-
 /*
  * POST /api/jobs/start
  * Requires query param <url> which is the Github html_url of the project.
@@ -184,8 +183,20 @@ exports.jobs_start = function(req, res) {
  * Return JSON object containing the most recent build status for each configured repo
  * This function is used to build the main dashboard status page
  */
-exports.jobs = function(req, res) {
 
+function getJobs(user, callback){
+  user.get_bitbucket_repo_config_list(function(err, bitbucketRepos){
+    if (err) throw err;
+    user.get_repo_config_list(function(err, githubRepos){
+      if (err) throw err;
+      var allRepos = _.union(bitbucketRepos, githubRepos);
+      callback(undefined, allRepos);
+    });
+  });
+  //user.get_repo_config_list(this);
+}
+
+exports.jobs = function(req, res) {
     console.log("api.jobs");
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
@@ -193,7 +204,7 @@ exports.jobs = function(req, res) {
     var jobsStatus = [];
     Step(
       function() {
-        req.user.get_bitbucket_repo_config_list(this);
+        getJobs(req.user, this);
       },
       // Find all repos the user has at least read-level of access to
       function buildQueries(err, repo_list) {
