@@ -1,7 +1,6 @@
 // Use Backbone.js to render the dashboard.
 
 $(function() {
-
   var intervals = {}
 
   function addInterval(url, i) {
@@ -20,7 +19,6 @@ $(function() {
       }
       delete intervals[url];
     }
-
   }
 
   function status_msg(msg, alertclass, templateselector) {
@@ -62,9 +60,8 @@ $(function() {
       if (job.get('in_progress') !== true) {
         startProgressMeter(job, percent_completion, current_duration);
       }
-
-      
     });
+
     window.socket.on('done', function(data) {
       var job = JobList.find(function(item) {
         return item.get('repo_url') === data.repo_url;
@@ -82,7 +79,6 @@ $(function() {
         status_msg("Job finished. Tests passed, deploy succeeded.", "success");
       } else if (data.job_type === "TEST_ONLY" && data.test_exitcode === 0) {
         status_msg("Job finished. Tests passed", "success");
-
       }
     });
   }
@@ -122,19 +118,17 @@ $(function() {
       }
       job.set('progress', percent_completion);
     }, 1000);
-
   };
 
-  window.startJob = function(url, job_type) {
+  window.startJob = function(url, job_type, vendor) {
     status_msg("Sending start message...", "info", "#spinner-msg");
-
-
     // Default job type is TEST_AND_DEPLOY
     if (job_type === undefined) {
       job_type = "TEST_AND_DEPLOY";
     }
-
-    var data = {url:url, type:job_type};
+    var isBitbucket = (vendor !== undefined || vendor === "bitbucket");
+    console.log(isBitbucket);
+    var data = {url:url, type:job_type, bitbucket:isBitbucket};
 
     $.ajax("/api/jobs/start", {
       data: data,
@@ -174,10 +168,11 @@ $(function() {
       }
       $(this.el).html(this.template(this.model.toJSON()));
       $(this.el).find(".test-only-action").click($.proxy(function() {
-        startJob(this.model.attributes.repo_url, "TEST_ONLY");
+        console.log(this.model);
+        startJob(this.model.attributes.repo_url, "TEST_ONLY", this.model.attributes.vendor);
       }, this));
       $(this.el).find(".test-and-deploy-action").click($.proxy(function() {
-        startJob(this.model.attributes.repo_url, "TEST_AND_DEPLOY");
+        startJob(this.model.attributes.repo_url, "TEST_AND_DEPLOY", this.model.attributes.vendor);
       }, this));
       if (this.model.get('in_progress')) {
         $(this.el).find('.bar').width(this.model.get('progress') + "%");

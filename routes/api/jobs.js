@@ -108,7 +108,8 @@ function handleBitbucket(req, res){
 }
 
 exports.jobs_start = function(req, res) {
-  if(req.param("bitbucket")){
+  var isBitbucket = req.param("bitbucket");
+  if(isBitbucket == "true"){
     handleBitbucket(req, res);
     return
   }
@@ -296,6 +297,7 @@ exports.jobs = function(req, res) {
             type: job.type,
             created_timestamp: job.created_timestamp,
             finished_timestamp: job.finished_timestamp,
+            vendor: job.vendor,
           }
           l.push(obj);
         });
