@@ -36,7 +36,7 @@ script.template#dashboard-job-item(type="text/template")
     .span10
       .row-fluid
         .span9
-          h3 <%= project_name %> (<a href="<%= repo_url %>" target="_blank">github</a>)
+          h3 <%= project_name %> (<a href="<%= repo_url %>" target="_blank"><%= vendor %></a>)
         .span3
           .job-notice
             | <% if (success===true) {%>
