@@ -13,9 +13,15 @@ exports.server_port = 3000;
 
 // Github OAuth2 API config
 exports.github = {
-    appId: "a3af4568e9d8ca4165fe",
-    appSecret: "18651128b57787a3336094e2ba1af240dfe44f6c",
+    appId: "66d453da979a91c02fd6",
+    appSecret: "50bfc4d1cfa5492eab3439422d4032ae56d9477a",
     myHostname: "http://localhost:" + exports.server_port
+};
+
+exports.bitbucket = {
+  consumerKey: "duwxH4WKbajSnDw4D8",
+  consumerSecret: "xXFDJHxA44QDLSSDWBz6xxyVgqUfCxVd",
+  callbackURL : "http://localhost:" + exports.server_port
 };
 
 // Server URL on the Internet

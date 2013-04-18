@@ -37,7 +37,7 @@ exports.index = function(req, res){
           res.render('register.html', {invite_code:code});
     } else {
       if (req.user != undefined) {
-        req.user.get_repo_config_list(function(err, repo_list) {
+        req.user.get_bitbucket_repo_config_list(function(err, repo_list) {
           if (err) throw err;
           res.render('index.html',{total_configured_projects:repo_list.length});
         });
@@ -94,12 +94,18 @@ exports.kickoff = function(req, res, github) {
         res.render('kickoff-conflict.html', {repo: JSON.stringify(trepo)});
       }
     });
-
   }
 };
 
-
-
+exports.kickoff_bitbucket = function(req, res){
+  var kickoff_repo_metadata = req.user.get_bitbucket_repo_metadata(req.params.bitbucketId, req.user.bitbucket.username);
+  var trepo = {
+    display_name: kickoff_repo_metadata.html_url.replace(/^.*com\//gi, ''),
+    url: kickoff_repo_metadata.html_url,
+    id: req.params.bitbucketId
+  };
+  res.render('kickoff_bitbucket.html', {repo: JSON.stringify(trepo)})
+};
 
 /*
  * GET /account - account settings page

@@ -39,7 +39,6 @@ $(function() {
   window.startJob = function(url, job_type) {
     status_msg("Sending start message...", "info", "#spinner");
 
-
     // Default job type is TEST_AND_DEPLOY
     if (job_type === undefined) {
       job_type = "TEST_AND_DEPLOY";
@@ -67,7 +66,23 @@ $(function() {
     short_url: function() {
       return this.get('html_url').replace(/https:\/\/github.com/gi, '');
     },
+    from: function(){
+      return "github";
+    },
+    defaults: function() {
+      return {
+        enabled: false
+      };
+    }
+  });
 
+  window.BitbucketRepo = Backbone.Model.extend({
+    short_url: function() {
+      return this.get('html_url').replace(/https:\/\/bitbucket.org/gi, '');;
+    },
+    from: function(){
+      return "bitbucket";
+    },
     defaults: function() {
       return {
         enabled: false
@@ -84,25 +99,32 @@ $(function() {
     }
   });
 
+  window.BitbucketRepoListCollection = Backbone.Collection.extend({
+    model: BitbucketRepo,
+    url: "/api/bitbucket/repos",
+    parse: function(response) {
+      return response.repos;
+    }
+  });
+
   window.RepoList = new RepoListCollection();
+  window.BitbucketRepoList = new BitbucketRepoListCollection();
 
   // Represents an individual Repo in the list
   window.RepoView = Backbone.View.extend({
     template: _.template($("#project-config-item").html()),
-
     events: {
       // We will have some here eventually.
     },
-
     initialize: function() {
       this.model.bind("change", this.render, this);
       this.model.bind("destroy", this.remove, this);
     },
-
     render: function() {
 
       var data = this.model.toJSON();
       data.short_url = this.model.short_url();
+      data.from = this.model.from();
       $(this.el).html(this.template(data));
       $(this.el).find(".test-only-action").click($.proxy(function() {
         startJob(this.model.attributes.html_url, "TEST_ONLY");
@@ -112,15 +134,34 @@ $(function() {
       }, this));
       return this;
     }
-
-
   });
 
-
+  window.BitbucketRepoView = Backbone.View.extend({
+    template: _.template($("#bitbucket-project-config-item").html()),
+    events: {
+      // We will have some here eventually.
+    },
+    initialize: function() {
+      this.model.bind("change", this.render, this);
+      this.model.bind("destroy", this.remove, this);
+    },
+    render: function() {
+      var data = this.model.toJSON();
+      data.short_url = this.model.short_url();
+      data.from = this.model.from();
+      $(this.el).html(this.template(data));
+      $(this.el).find(".test-only-action").click($.proxy(function() {
+        startJob(this.model.attributes.html_url, "TEST_ONLY");
+      }, this));
+      $(this.el).find(".test-and-deploy-action").click($.proxy(function() {
+        startJob(this.model.attributes.html_url, "TEST_AND_DEPLOY");
+      }, this));
+      return this;
+    }
+  });
 
   // Represents the whole JS dashboard App
   window.DashboardAppView = Backbone.View.extend({
-
     el: $("#dashboard"),
     events: {
       "click .refresh-button" : "refresh"
@@ -128,35 +169,27 @@ $(function() {
     refresh: function ( event ){
       status_msg("Refreshing repository list...", "info", "#spinner");
       $.ajax("/api/github/metadata?refresh=1", {
-            success: function(data, ts, xhr) {
-                RepoList.fetch();
-                var repo_count = 0;
-                if (data.repos) {
-                  repo_count = data.repos.length;
-                }
-            }
-          });
+        success: function(data, ts, xhr) {
+          RepoList.fetch();
+          var repo_count = 0;
+          if (data.repos) {
+            repo_count = data.repos.length;
+          }
+        }
+      });
     },
-
     template: _.template($("#project-config-app").html()),
-
     initialize: function() {
       RepoList.bind('all', this.render, this);
       RepoList.bind('reset', this.addData, this);
-
       status_msg("Fetching available repository information from Github...", "info", "#spinner");
-
       RepoList.fetch();
-
     },
-
     render: function() {
     },
-
     addData: function() {
       this.addRepos();
     },
-
     addRepos: function() {
       any_configured = RepoList.any(function(item) {
         return item.attributes.configured;
@@ -169,11 +202,62 @@ $(function() {
       }, this));
 
       RepoList.each($.proxy(function(repo) {
-
         var view = new RepoView({model: repo});
         var repoel = view.render().el;
         $("#repo-list").append(repoel);
+      }, this));
+      if ($("#spinner").hasClass('alert-info')) {
+        $("#spinner").hide();
+      }
+    }
+  });
 
+  window.BitbucketDashboardAppView = Backbone.View.extend({
+    el: $("#bitbucket-dashboard"),
+    events: {
+      "click .refresh-button" : "refresh"
+    },
+    refresh: function ( event ){
+      status_msg("Refreshing repository list...", "info", "#spinner");
+      $.ajax("/api/bitbucket/repos", {
+        success: function(data, ts, xhr) {
+          BitbucketRepoList.fetch();
+          var repo_count = 0;
+          if (data.repos) {
+            repo_count = data.repos.length;
+          }
+        }
+      });
+    },
+    template: _.template($("#bitbucket-project-config-app").html()),
+    initialize: function() {
+      BitbucketRepoList.bind('all', this.render, this);
+      BitbucketRepoList.bind('reset', this.addData, this);
+
+      status_msg("Fetching available repository information from Bitbucket...", "info", "#spinner");
+
+      BitbucketRepoList.fetch();
+    },
+    render: function() {
+    },
+    addData: function() {
+      this.addRepos();
+    },
+    addRepos: function() {
+      any_configured = BitbucketRepoList.any(function(item) {
+        return item.attributes.enabled;
+      });
+      $(this.el).html(this.template({any_configured:any_configured,
+        show_all:this.show_all}));
+      $(this.el).find('.btn').click($.proxy(function() {
+        this.show_all = true;
+        this.addRepos();
+      }, this));
+
+      BitbucketRepoList.each($.proxy(function(repo) {
+        var view = new BitbucketRepoView({model: repo});
+        var repoel = view.render().el;
+        $("#bitbucket-repo-list").append(repoel);
       }, this));
       if ($("#spinner").hasClass('alert-info')) {
         $("#spinner").hide();
@@ -182,9 +266,8 @@ $(function() {
   });
 
   window.DashboardApp = new DashboardAppView();
-
+  window.BitbucketDashboardApp = new BitbucketDashboardAppView();
 });
-
 
 // == Dirty Filter Box
 $(function(){
@@ -211,8 +294,6 @@ $(function(){
           $(this).hide()
         }
       }
-    })
-
-  })
-
-})
+    });
+  });
+});

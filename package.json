@@ -36,7 +36,9 @@
     "express": "~3.1.0",
     "swig": "git+https://github.com/peterbraden/swig",
     "cookie": "0.0.5",
-    "socket.io": "~0.9.13"
+    "socket.io": "~0.9.13",
+    "passport-bitbucket": "~0.1.2",
+    "oauth": "~0.9.10"
   },
   "devDependencies": {
     "mocha": "~1.9.0",

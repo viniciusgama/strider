@@ -3,8 +3,8 @@
 {% block bodyContent %}
 {% if !currentUser %} 
   <div class='StriderBlock_LoggedOutFillContent'>{% pluginblock LoggedOutFillContent %}
-      {% include "partials/errors.html" %}
-      {% include "partials/signupform.html" %}
+    {% include "partials/errors.html" %}
+    {% include "partials/signupform.html" %}
   {% endpluginblock %}</div>
 
   <script>
@@ -25,6 +25,22 @@
     <a class="btn btn-success" href='/auth/github'>
       <i class="icon-ok"></i>
       Link Github account 
+      &nbsp;&nbsp;&nbsp;
+    </a>
+    <a class="btn" href='/manual_setup'>Manual Setup</a>
+  </div>
+</div>
+{% endif %}
+
+{% if !currentUser.bitbucket.username %}
+<div class="span7 well">
+  <h3>Welcome to Strider, {{currentUser.email}}!</h3> 
+  <p> It looks like you haven't yet linked your Bitbucket account. Press the button below to get started.
+  </p>
+  <div class= "actions">
+    <a class="btn btn-success" href='/auth/bitbucket'>
+      <i class="icon-ok"></i>
+      Link Bitbucket account 
       &nbsp;&nbsp;&nbsp;
     </a>
     <a class="btn" href='/manual_setup'>Manual Setup</a>

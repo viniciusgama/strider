@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block bodyContent %}
 
 {% if !currentUser.github.id %}
@@ -16,13 +15,37 @@
   </p>
 </div>
 {% else %}
-
   {% include "partials/spinner.html" %}
   {% include "projects_templates.html" %}
   <script src='/socket.io/socket.io.js'></script>
-  <div id="dashboard"></div>
-  <script src="/javascripts/projects.js"></script>
-  <script src='/javascripts/jquery.scrollTo-1.4.2-min.js'></script>
 
+  <div class='span12'>
+    <h3>Repositories Management:</h3>
+    <p>
+    <div class="tabbable tabs-left">
+      <ul class='nav nav-tabs'>
+        <li class='active'><a href='#github' data-toggle='tab'>Github</a></li>
+        <li><a href='#bitbucket' data-toggle='tab'>Bitbucket</a></li>
+      </ul>
+      <div class='tab-content'>
+        <div id="github" class="tab-pane active">
+          <div id="github_repos" class="span8">
+            <div class='well'>
+            <div id="dashboard"></div>
+          </div>
+          </div>
+        </div>
+        <div id="bitbucket" class="tab-pane">
+          <div id="bitbucket_repos" class="span8">
+            <div class='well'>
+            <div id="bitbucket-dashboard"></div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <script src="/javascripts/projects.js"></script>
+      <script src='/javascripts/jquery.scrollTo-1.4.2-min.js'></script>
+    </div>
+  </div>
 {% endif %}
 {% endblock %}

@@ -1,7 +1,6 @@
 // Use Backbone.js to render the dashboard.
 
 $(function() {
-
   var intervals = {}
 
   function addInterval(url, i) {
@@ -20,7 +19,6 @@ $(function() {
       }
       delete intervals[url];
     }
-
   }
 
   function status_msg(msg, alertclass, templateselector) {
@@ -40,7 +38,6 @@ $(function() {
     window.socket = io.connect();
     window.socket.on('start', function(data) {
       status_msg("Running job...", "info", "#spinner-msg");
-
     });
     window.socket.on('update', function(data) {
       var job = JobList.find(function(item) {
@@ -62,9 +59,8 @@ $(function() {
       if (job.get('in_progress') !== true) {
         startProgressMeter(job, percent_completion, current_duration);
       }
-
-      
     });
+
     window.socket.on('done', function(data) {
       var job = JobList.find(function(item) {
         return item.get('repo_url') === data.repo_url;
@@ -82,7 +78,6 @@ $(function() {
         status_msg("Job finished. Tests passed, deploy succeeded.", "success");
       } else if (data.job_type === "TEST_ONLY" && data.test_exitcode === 0) {
         status_msg("Job finished. Tests passed", "success");
-
       }
     });
   }
@@ -122,19 +117,16 @@ $(function() {
       }
       job.set('progress', percent_completion);
     }, 1000);
-
   };
 
-  window.startJob = function(url, job_type) {
+  window.startJob = function(url, job_type, vendor) {
     status_msg("Sending start message...", "info", "#spinner-msg");
-
-
     // Default job type is TEST_AND_DEPLOY
     if (job_type === undefined) {
       job_type = "TEST_AND_DEPLOY";
     }
-
-    var data = {url:url, type:job_type};
+    var isBitbucket = (vendor !== undefined || vendor === "bitbucket");
+    var data = {url:url, type:job_type, bitbucket:isBitbucket};
 
     $.ajax("/api/jobs/start", {
       data: data,
@@ -161,26 +153,24 @@ $(function() {
   // Represents an individual Job in the list
   window.JobView = Backbone.View.extend({
     template: _.template($("#dashboard-job-item").html()),
-
     events: {
       // We will have some here eventually.
     },
-
     initialize: function() {
       this.model.bind("change", this.render, this);
       this.model.bind("destroy", this.remove, this);
     },
-
     render: function() {
       if (!this.model.get('duration_text')) {
         this.model.set('duration_text', this.model.get('duration'));
       }
       $(this.el).html(this.template(this.model.toJSON()));
       $(this.el).find(".test-only-action").click($.proxy(function() {
-        startJob(this.model.attributes.repo_url, "TEST_ONLY");
+        console.log(this.model);
+        startJob(this.model.attributes.repo_url, "TEST_ONLY", this.model.attributes.vendor);
       }, this));
       $(this.el).find(".test-and-deploy-action").click($.proxy(function() {
-        startJob(this.model.attributes.repo_url, "TEST_AND_DEPLOY");
+        startJob(this.model.attributes.repo_url, "TEST_AND_DEPLOY", this.model.attributes.vendor);
       }, this));
       if (this.model.get('in_progress')) {
         $(this.el).find('.bar').width(this.model.get('progress') + "%");
@@ -189,49 +179,30 @@ $(function() {
 
       return this;
     }
-
-
   });
-
 
   // Represents the whole JS dashboard App
   window.DashboardAppView = Backbone.View.extend({
-
     el: $("#dashboard"),
-
     template: _.template($("#dashboard-app").html()),
-
     initialize: function() {
-      //RepoList.bind('all', this.render, this);
-      //RepoList.bind('reset', this.addData, this);
-
-      //status_msg("Fetching available repository information from Github...", "info", "#spinner-msg");
-
-      //RepoList.fetch();
-
       JobList.bind('all', this.render, this);
       JobList.bind('reset', this.addData, this);
 
       JobList.fetch();
       console.log("job list fetched");
-
-
     },
     render: function() {
       //$(this.el).html(this.template());
       //return this;
     },
-
-
     addData: function() {
       this.renderHTML();
       this.addJobs();
     },
-
     renderHTML: function() {
       $(this.el).html(this.template());      
     },
-
     addJobs: function() {
       $("#job-list .empty").remove();
       if (JobList.length > 0){
@@ -249,5 +220,4 @@ $(function() {
   });
 
   window.DashboardApp = new DashboardAppView();
-
 });

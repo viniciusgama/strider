@@ -8,7 +8,6 @@ $(function() {
       $(this.el).html(_.template($("#change-password").html()));
       return this;
     },
-
     submit: function() {
       var password = $(this.el).find('input[name="password"]').val();
       var password_confirm = $(this.el).find('input[name="password_confirm"]').val();
@@ -59,7 +58,6 @@ $(function() {
       $(this.el).html(_.template($("#change-email").html()));
       return this;
     },
-
     submit: function() {
       var email = $(this.el).find('input[name="email"]').val();
       if (this.validate(email)) {
@@ -83,7 +81,6 @@ $(function() {
       }
     },
     validate: function(email) {
-
       $(this.el).find('div.email-message').removeClass('alert alert-error alert-success').text('');
       $(this.el).find('div.control-group').removeClass('error');
       $(this.el).find('span.help-inline').text('');
@@ -93,7 +90,6 @@ $(function() {
       return true;
     }
   });
-
 
   window.PasswordApp = new PasswordView()
   window.EmailApp = new EmailView();
