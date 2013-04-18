@@ -38,7 +38,6 @@ $(function() {
     window.socket = io.connect();
     window.socket.on('start', function(data) {
       status_msg("Running job...", "info", "#spinner-msg");
-
     });
     window.socket.on('update', function(data) {
       var job = JobList.find(function(item) {
