@@ -2,6 +2,39 @@ var OAuth = require('oauth').OAuth
   , _ = require('underscore')
   , config = require('../../lib/config.js');
 
+function addConfiguredKeys(user, repos)
+{
+  var already_configured = configuredReposList(user);
+  _.each(repos, function(repo) {
+    if (!repo) {
+      console.error("addConfiguredKeys(): repo is %s", repo);
+      return;
+    }
+    if (repo.html_url === undefined) {
+      console.error("addConfiguredKeys(): repo.html_url is undefined. Full repo: %j", repo);
+      repo.configured = false;
+      return;
+    }
+    if (_.indexOf(already_configured, repo.html_url.toLowerCase() ) != -1) {
+      repo.configured = true;
+    } else {
+      repo.configured = false;
+    }
+  });
+}
+
+function configuredReposList(user)
+{
+  var l = [];
+  var gh_config = user.bitbucket_config || [];
+  _.each(gh_config, function(item) {
+    if (item.url !== undefined) {
+        l.push(item.url);
+    }
+  });
+  return l;
+}
+
 exports.get_repos = function(req, res){
   var oAuth = new OAuth(
     config.bitbucket.requestTokenUrl,
@@ -29,8 +62,8 @@ exports.get_repos = function(req, res){
         repo.html_url = "https://bitbucket.org/" + repo.owner + "/" + repo.name;
         repo.ssh_url = "git@bitbucket.org:" + repo.owner + "/" + repo.name + ".git";
       });
+      addConfiguredKeys(req.user, gitRepos);
       req.user.save(function(err, user){
-        //return res.json(req.user);
         return res.json({repos: gitRepos});
       });
     }

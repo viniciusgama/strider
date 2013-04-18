@@ -127,7 +127,6 @@ $(function() {
       job_type = "TEST_AND_DEPLOY";
     }
     var isBitbucket = (vendor !== undefined || vendor === "bitbucket");
-    console.log(isBitbucket);
     var data = {url:url, type:job_type, bitbucket:isBitbucket};
 
     $.ajax("/api/jobs/start", {

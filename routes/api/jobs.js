@@ -64,7 +64,6 @@ function handleBitbucket(req, res){
   req.user.get_bitbucket_repo_config(url, function(err, repo_config, access_level, origin_user_obj) {
 
     if (err || !repo_config) {
-      console.log(repo_config);
       res.statusCode = 400;
       return res.end("you must configure " + url + " before you can start a job for it");
     }
