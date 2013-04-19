@@ -108,7 +108,7 @@ function handleBitbucket(req, res){
 
 exports.jobs_start = function(req, res) {
   var isBitbucket = req.param("bitbucket");
-  if(isBitbucket == "true"){
+  if(isBitbucket === "true"){
     handleBitbucket(req, res);
     return
   }

@@ -125,7 +125,8 @@ $(function() {
     if (job_type === undefined) {
       job_type = "TEST_AND_DEPLOY";
     }
-    var isBitbucket = (vendor !== undefined || vendor === "bitbucket");
+    
+    var isBitbucket = vendor === "bitbucket";
     var data = {url:url, type:job_type, bitbucket:isBitbucket};
 
     $.ajax("/api/jobs/start", {
@@ -141,7 +142,6 @@ $(function() {
           return item.get('repo_url') === url;
         });
         status_msg("Running job...", "info", "#spinner-msg");
-
         startProgressMeter(job);
       },
       type: "POST"
@@ -166,7 +166,6 @@ $(function() {
       }
       $(this.el).html(this.template(this.model.toJSON()));
       $(this.el).find(".test-only-action").click($.proxy(function() {
-        console.log(this.model);
         startJob(this.model.attributes.repo_url, "TEST_ONLY", this.model.attributes.vendor);
       }, this));
       $(this.el).find(".test-and-deploy-action").click($.proxy(function() {
@@ -176,7 +175,6 @@ $(function() {
         $(this.el).find('.bar').width(this.model.get('progress') + "%");
         $(this.el).find('.progress-meter').show();
       }
-
       return this;
     }
   });
