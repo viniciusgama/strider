@@ -15,7 +15,7 @@ var  _ = require('underscore')
    , User = require(BASE_PATH + 'models').User
    ;
 
-function lookup(case_insensitive_url, cb) {
+function getGithubConfig(case_insensitive_url, cb){
   User.findOne({
       "github_config.url":case_insensitive_url.toLowerCase(),
     }, function(err, user_obj) {
@@ -34,8 +34,37 @@ function lookup(case_insensitive_url, cb) {
     }
     return cb(null, repo);
   });
-};
+}
 
+function getBitbucketConfig(case_insensitive_url, cb){
+  User.findOne({
+      "bitbucket_config.url":case_insensitive_url.toLowerCase(),
+    }, function(err, user_obj) {
+    if (err || !user_obj) {
+      console.debug("lookup() - did not find a repo matching %s for any user",
+        case_insensitive_url);
+      return cb("no repo found", null);
+    }
+    var repo = _.find(user_obj.bitbucket_config, function(repo_config) {
+      return case_insensitive_url.toLowerCase() == repo_config.url;
+    });
+    if (!repo) {
+      console.error(
+        "lookup() - Error finding matching github_config despite DB query success!");
+      return cb("no repo found", null);
+    }
+    return cb(null, repo);
+  });
+}
+
+function lookup(host, case_insensitive_url, cb) {
+  if (host == "github"){
+    getGithubConfig(case_insensitive_url, cb);
+  }
+  else{
+    getBitbucketConfig(case_insensitive_url, cb);
+  }
+};
 
 /*
  * GET /org/repo/latest_build - view latest build for repo
@@ -44,11 +73,19 @@ function lookup(case_insensitive_url, cb) {
 exports.latest_build = function(req, res)
 {
   res.statusCode = 200;
+  var host = req.params.host;
   var org = req.params.org;
   var repo = req.params.repo;
-  var repo_url = "https://github.com/" + org + "/" + repo;
 
-  lookup(repo_url, function(err, repo_config) {
+  var repo_url
+  if (host == "github"){  
+    repo_url = "https://github.com/" + org + "/" + repo;
+  }
+  else{
+    repo_url = "https://bitbucket.org/" + org + "/" + repo; 
+  }
+
+  lookup(host, repo_url, function(err, repo_config) {
     if (err || repo_config === undefined) {
       res.statusCode = 500;
       res.end("you must configure " + repo_url + " before you can use it");

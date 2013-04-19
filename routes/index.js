@@ -100,7 +100,7 @@ exports.kickoff = function(req, res, github) {
 exports.kickoff_bitbucket = function(req, res){
   var kickoff_repo_metadata = req.user.get_bitbucket_repo_metadata(req.params.bitbucketId, req.user.bitbucket.username);
   var trepo = {
-    display_name: kickoff_repo_metadata.html_url.replace(/^.*com\//gi, ''),
+    display_name: kickoff_repo_metadata.html_url.replace(/^.*org\//gi, ''),
     url: kickoff_repo_metadata.html_url,
     id: req.params.bitbucketId
   };

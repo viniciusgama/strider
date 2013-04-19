@@ -251,7 +251,9 @@ exports.jobs = function(req, res) {
                 job.repo_url, this.repo_list);
             return;
           }
-          var project_name= repo_config.display_url.replace(/^.*com\//gi, '');
+
+          var project_name = repo_config.display_url.replace(/^.*com\//gi, '');
+          project_name = project_name.replace(/^.*org\//gi, '');
 
           var job_url = "/" + project_name + "/job/" + job.id;
 
