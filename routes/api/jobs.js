@@ -252,10 +252,11 @@ exports.jobs = function(req, res) {
             return;
           }
 
-          var project_name = repo_config.display_url.replace(/^.*com\//gi, '');
-          project_name = project_name.replace(/^.*org\//gi, '');
+          var project_name = job.vendor == "bitbucket" ? 
+            repo_config.display_url.replace(/^.*org\//gi, '') :
+            repo_config.display_url.replace(/^.*com\//gi, '');
 
-          var job_url = "/" + project_name + "/job/" + job.id;
+          var job_url = job.vendor + "/" + project_name + "/job/" + job.id;
 
           var triggered_by_commit = false;
           var commit_id = null;

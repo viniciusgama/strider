@@ -49,7 +49,6 @@ exports.index = function(req, res){
   }
 };
 
-
 function whitelist_repo_config(repo_config) {
   var trepo = {
     display_name:repo_config.display_url.replace(/^.*com\//gi, ''),
@@ -70,7 +69,6 @@ function whitelist_repo_metadata(repo_metadata) {
   };
   return trepo;
 }
-
 
 /*
  * GET /kickoff  - start configuration wizard for a job

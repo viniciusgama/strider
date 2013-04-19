@@ -76,8 +76,8 @@ exports.latest_build = function(req, res)
   var host = req.params.host;
   var org = req.params.org;
   var repo = req.params.repo;
+  var repo_url;
 
-  var repo_url
   if (host == "github"){  
     repo_url = "https://github.com/" + org + "/" + repo;
   }
@@ -157,10 +157,17 @@ exports.latest_build = function(req, res)
 exports.job = function(req, res)
 {
   res.statusCode = 200;
+  var host = req.params.host;
   var org = req.params.org;
   var repo = req.params.repo;
-  var job_id = req.params.job_id;
-  var repo_url = "https://github.com/" + org + "/" + repo;
+  var repo_url;
+  
+  if (host == "github"){  
+    repo_url = "https://github.com/" + org + "/" + repo;
+  }
+  else{
+    repo_url = "https://bitbucket.org/" + org + "/" + repo; 
+  }
 
   // Ignore if can't parse as ObjectID
   try {
@@ -172,7 +179,7 @@ exports.job = function(req, res)
 
   Step(
     function getRepoConfig() {
-      lookup(repo_url, this);
+      lookup(host, repo_url, this);
     },
     function runQueries(err, repo_config){
       if (err || !repo_config) {
@@ -255,9 +262,7 @@ exports.job = function(req, res)
             repo_url:this.repo_config.url,
             has_prod_deploy_target:this.repo_config.has_prod_deploy_target
           });
-
       }
     }
   );
-
 };
