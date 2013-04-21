@@ -122,7 +122,7 @@ exports.latest_build = function(req, res)
           }
         }
         job.id = job._id.toString();
-        job.url = "/" + org + "/" + repo + "/job/" + job.id;
+        job.url = "/" + host + "/" + org + "/" + repo + "/job/" + job.id;
       });
 
       if (results.length === 0) {
@@ -134,7 +134,7 @@ exports.latest_build = function(req, res)
       }
 
       results[0].output = filter(results[0].stdmerged);
-
+      
       res.render('latest_build.html',
         {
           admin_view: false,
@@ -142,6 +142,7 @@ exports.latest_build = function(req, res)
           results_detail: results[0],
           triggered_by_commit: triggered_by_commit,
           org:org,
+          host:host,
           repo:repo,
           repo_url:repo_config.url,
           has_prod_deploy_target:repo_config.has_prod_deploy_target
@@ -161,6 +162,7 @@ exports.job = function(req, res)
   var org = req.params.org;
   var repo = req.params.repo;
   var repo_url;
+  var job_id = req.params.job_id;
   
   if (host == "github"){  
     repo_url = "https://github.com/" + org + "/" + repo;
@@ -223,7 +225,7 @@ exports.job = function(req, res)
             job.committer_is_username = false;
           }
         }
-        job.url = "/" + org + "/" + repo + "/job/" + job.id;
+        job.url = "/" + host + "/" + org + "/" + repo + "/job/" + job.id;
       });
 
       // if results_detail did not return, that means this is not a valid job id
@@ -249,7 +251,7 @@ exports.job = function(req, res)
         }
 
         results_detail.output = filter(results_detail.stdmerged);
-
+        
         res.render('job.html',
           {
             admin_view: false,
@@ -259,6 +261,7 @@ exports.job = function(req, res)
             triggered_by_commit: triggered_by_commit,
             org:org,
             repo:repo,
+            host:host,
             repo_url:this.repo_config.url,
             has_prod_deploy_target:this.repo_config.has_prod_deploy_target
           });

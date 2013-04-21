@@ -42,7 +42,7 @@
       {% if has_prod_deploy_target %}
         <a class='btn btn-info deploy'>Deploy</a>
       {% endif %}
-      <a class='btn' href="/{{ org }}/{{ repo }}/config">Configure</a>
+      <a class='btn' href="/{{ host }}/{{ org }}/{{ repo }}/config">Configure</a>
     </div>
     <div id='list-of-builds'>
       <div class='row-fluid build-list-header'>
@@ -118,13 +118,13 @@ $(document).ready(function() {
       }
     });
   }
-  window.startJob = function(url, job_type) {
+  window.startJob = function(url, job_type, host) {
     // Default job type is TEST_AND_DEPLOY
     if (job_type === undefined) {
       job_type = "TEST_AND_DEPLOY";
     }
-
-    var data = {url:url, type:job_type};
+    var isBitbucket = host === "bitbucket";
+    var data = {url:url, type:job_type, bitbucket:isBitbucket};
 
     $.ajax("/api/jobs/start", {
       data: data,
@@ -145,14 +145,14 @@ $(document).ready(function() {
   };
 
     $("a.btn.deploy").click(function() {
-      startJob( '{{ repo_url}}' );
+      startJob( '{{ repo_url}}', undefined, "{{host}}");
       $("a.btn.deploy").attr('disabled', 'disabled');
       $("a.btn.test").attr('disabled', 'disabled');
       status_msg("Job submitted...", "info", "#spinner-msg");
     });
 
     $("a.btn.test").click(function() {
-        startJob( "{{repo_url}}" , "TEST_ONLY");
+        startJob( "{{repo_url}}" , "TEST_ONLY", "{{host}}");
       $("a.btn.test").attr('disabled', 'disabled');
       $("a.btn.deploy").attr('disabled', 'disabled');
       status_msg("Job submitted...", "info", "#spinner-msg");

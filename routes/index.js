@@ -117,9 +117,17 @@ exports.account = function(req, res){
  */
 exports.config = function(req, res)
 {
+  var host = req.params.host;
   Step(
     function() {
-      req.user.get_repo_config(req.repo_url, this);
+      if (host == "github"){
+        console.log(host);
+        req.user.get_repo_config(req.repo_url, this);
+      }
+      else{
+        console.log(host);
+        req.user.get_bitbucket_repo_config(req.repo_url, this); 
+      }
     },
     function(err, repo_config) {
       if (err) {
@@ -128,7 +136,15 @@ exports.config = function(req, res)
         return res.end("Bad Request");
       }
       this.repo_config = repo_config;
-      req.user.get_prod_deploy_target(repo_config.url, this);
+
+      if (host == "github"){
+        console.log(host);
+        req.user.get_prod_deploy_target(repo_config.url, this);
+      }
+      else{
+        console.log(host);
+        req.user.get_bitbucket_prod_deploy_target(repo_config.url, this);
+      }
     },
     function(err, deploy_target) {
       var wrepo_config = whitelist_repo_config(this.repo_config);
