@@ -45,6 +45,7 @@ describe('middleware', function() {
           get_repo_config:function(url, cb) {  return cb("not found", null); }
         },
         params: {
+          host: "github",
           org: "beyondfog",
           repo: "strider"
           }
@@ -61,6 +62,7 @@ describe('middleware', function() {
           get_repo_config:function(url, cb) {  return cb(null, mock_req.user.github_config[0]); }
         },
         params: {
+          host: "github",
           org: "beyondfog",
           repo: "good"
         }
