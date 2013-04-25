@@ -45,14 +45,19 @@ describe('github', function() {
     it('should correctly build request URL w/ access token', function() {
       var mock = sinon.mock(request);
       var expect_url = "/user/repos?access_token=TEST_TOKEN";
-      mock.expects("get").once().withArgs(expect_url);
+      var expectedArgs = {
+        url:expect_url,
+        headers:{"user-agent":"StriderCD (http://stridercd.com)"}
+      }
+      mock.expects("get").once().withArgs(expectedArgs);
       github.get_oauth2('/user/repos', {}, "TEST_TOKEN", null, request);
       mock.verify();
     });
     it('should correctly build request URL w/ access token and query params', function() {
       var mock = sinon.mock(request);
       var expect_url = "/user/repos?foo=bar&access_token=TEST_TOKEN";
-      mock.expects("get").once().withArgs(expect_url);
+      var expectedArgs = {url:expect_url, headers:{"user-agent":"StriderCD (http://stridercd.com)"}}
+      mock.expects("get").once().withArgs(expectedArgs);
       github.get_oauth2('/user/repos', {foo:"bar"}, "TEST_TOKEN", null, request);
       mock.verify();
     });
@@ -127,7 +132,8 @@ describe('github', function() {
       mock_request.expects("post").once().withArgs({
         url:"https://api.github.com/repos/BeyondFog/test/keys?access_token="+token,
         body:{title: title, key: pubkey},
-        json:true
+        json:true,
+        headers:{"user-agent":"StriderCD (http://stridercd.com)"}
       }, cb);
       github.add_deploy_key(repo_path, pubkey, title, token, cb, request);
 
@@ -151,7 +157,8 @@ describe('github', function() {
       mock_request.expects("post").once().withArgs({
         url:"https://api.github.com/repos/BeyondFog/test/hooks?access_token="+token,
         body:{name: name, active: true, config: {url: hook_url, secret:secret}},
-        json:true
+        json:true,
+        headers:{"user-agent":"StriderCD (http://stridercd.com)"}
       }, cb);
       github.set_push_hook(repo_path, name, hook_url, secret, token, cb, request);
 
